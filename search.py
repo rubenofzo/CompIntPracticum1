@@ -17,6 +17,9 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
+from asyncio.windows_events import NULL
+from inspect import stack
+from pickletools import StackObject
 import util
 
 class SearchProblem:
@@ -87,7 +90,23 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    newStack = util.Stack()
+    newStack.push(problem.getStartState())
+    return depthFirstSearchHelper(newStack, problem)
+
+def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem):
+    if stack.isEmpty:
+        util.raiseNotDefined
+    else: 
+        t = stack.pop
+        if problem.isGoalState(t):
+            return t
+        else:
+            for succ in problem.getSuccesors(t):
+                stack = stack.push(succ)
+            return depthFirstSearchHelper(stack, problem)
+
+
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
