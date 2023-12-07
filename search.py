@@ -112,21 +112,33 @@ def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     queue = util.Queue()
-    queue.push(problem.getStartState())
-    return breadthFirstSearchHelper(queue, problem)
+    startState = problem.getStartState()
+    queue.push(startState)
+    succDictionary = {startState : None}
+    return breadthFirstSearchHelper(queue, problem, succDictionary)
 
-def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem):
+def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem, succDictionary: dict):
     if queue.isEmpty:
-        return util.raiseNotDefined()
+        return None
     else: 
         currentState = queue.pop
         if problem.isGoalState(currentState):
-            return currentState
+            return returnPath(currentState, succDictionary)
         else:
-            for succ in problem.getSuccesors(currentState):
-                queue = queue.push(succ)
+            succesors = problem.getSuccesors(currentState)
+            for succ in succesors:
+                if succDictionary.get(succ)==None:
+                  succDictionary.Update(succ,currentState)
+                  queue = queue.push(succ)
             return breadthFirstSearchHelper(queue, problem)
 
+def returnPath(finalState, succDictionary: dict):
+    path = []
+    currentlySearching = finalState
+    while not currentlySearching == None:
+        path.append(currentlySearching[1])
+        currentlySearching = succDictionary.get(currentlySearching)
+    return path
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
