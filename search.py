@@ -138,7 +138,22 @@ def generateGraph(stack:util.Stack, problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.Queue()
+    queue.push(problem.getStartState())
+    return breadthFirstSearchHelper(queue, problem)
+
+def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem):
+    if queue.isEmpty:
+        return util.raiseNotDefined()
+    else: 
+        currentState = queue.pop
+        if problem.isGoalState(currentState):
+            return currentState
+        else:
+            for succ in problem.getSuccesors(currentState):
+                queue = queue.push(succ)
+            return breadthFirstSearchHelper(queue, problem)
+
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
