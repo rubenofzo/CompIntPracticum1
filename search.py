@@ -17,10 +17,10 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
-from asyncio.windows_events import NULL
-from inspect import stack
-from pickletools import StackObject
+
 import util
+from game import Directions
+
 
 class SearchProblem:
     """
@@ -118,19 +118,20 @@ def breadthFirstSearch(problem: SearchProblem):
     return breadthFirstSearchHelper(queue, problem, succDictionary)
 
 def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem, succDictionary: dict):
-    if queue.isEmpty:
-        return None
-    else: 
-        currentState = queue.pop
+    #return [problem.getSuccessors(queue.pop())[0][1]]
+    if not queue.isEmpty():
+        currentState = queue.pop()
         if problem.isGoalState(currentState):
-            return returnPath(currentState, succDictionary)
+            return [Directions.WEST] #returnPath(currentState, succDictionary)
         else:
-            succesors = problem.getSuccesors(currentState)
-            for succ in succesors:
+            successors = problem.getSuccessors(currentState[0])
+            for succ in successors:
                 if succDictionary.get(succ)==None:
-                  succDictionary.Update(succ,currentState)
-                  queue = queue.push(succ)
-            return breadthFirstSearchHelper(queue, problem)
+                  succDictionary.update({succ : currentState})
+                  queue.push(succ)
+            return breadthFirstSearchHelper(queue, problem, succDictionary)
+    return None
+
 
 def returnPath(finalState, succDictionary: dict):
     path = []
