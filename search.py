@@ -90,21 +90,48 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    n = Directions.NORTH
+    e = Directions.East
     newStack = util.Stack()
     newStack.push(problem.getStartState())
-    return depthFirstSearchHelper(newStack, problem)
+    path = depthFirstSearchHelper(newStack, problem)
+    for step in path:
+        if step == 1:
+            result.append(N)
+        if step == 2 :
+            result.append(W)
+        
 
 def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem):
+    visited = []
+    succ = util.Stack()
     if stack.isEmpty:
         util.raiseNotDefined
     else: 
         t = stack.pop
+        if visited.index(t) != NULL:
+           visited.append(t)
+        else:
+            return depthFirstSearchHelper(stack, problem)
+
         if problem.isGoalState(t):
             return t
         else:
-            for succ in problem.getSuccesors(t):
-                stack = stack.push(succ)
+            succ = problem.getSuccesors(t)
+            stack = t.push(succ)
             return depthFirstSearchHelper(stack, problem)
+
+def generateGraph(stack:util.Stack, problem: SearchProblem):
+    root = stack.pop
+    children = problem.getSuccesors(root)
+    stack = root.push
+    for child in children:
+        stack = child.push
+    
+
 
 
 
