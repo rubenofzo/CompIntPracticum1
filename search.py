@@ -20,6 +20,7 @@ Pacman agents (in searchAgents.py).
 from asyncio.windows_events import NULL
 from inspect import stack
 from pickletools import StackObject
+from typing import DefaultDict
 import util
 
 class SearchProblem:
@@ -90,47 +91,37 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    from game import Directions
-    s = Directions.SOUTH
-    w = Directions.WEST
-    n = Directions.NORTH
-    e = Directions.East
     newStack = util.Stack()
     newStack.push(problem.getStartState())
-    path = depthFirstSearchHelper(newStack, problem)
-    for step in path:
-        if step == 1:
-            result.append(N)
-        if step == 2 :
-            result.append(W)
+    return depthFirstSearchHelper(newStack, problem)
+   
         
 
 def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem):
     visited = []
+    path=[]
+    dicto = {}
     succ = util.Stack()
     if stack.isEmpty:
         util.raiseNotDefined
     else: 
-        t = stack.pop
-        if visited.index(t) != NULL:
-           visited.append(t)
+        current = stack.pop
+        if visited.index(current) == NULL:
+           visited = visited.append(current)
+           if problem.isGoalState(current):
+               for node in visited:
+                   path = path.append(dicto.get(node))
+               return path
+           else :
+               succ = problem.getSuccesors(current)
+               dicto.update({(succ[0])[0]: (succ[0])[1]},{(succ[1])[0]: (succ[1])[1]})
+               stack = current.push(succ[0])
+               nextSucc = nextSucc.push(stack[0])
+               return depthFirstSearchHelper(nextSucc, problem)
         else:
             return depthFirstSearchHelper(stack, problem)
 
-        if problem.isGoalState(t):
-            return t
-        else:
-            succ = problem.getSuccesors(t)
-            stack = t.push(succ)
-            return depthFirstSearchHelper(stack, problem)
-
-def generateGraph(stack:util.Stack, problem: SearchProblem):
-    root = stack.pop
-    children = problem.getSuccesors(root)
-    stack = root.push
-    for child in children:
-        stack = child.push
-    
+        """Maak dictonary voor de succ met als key de 'node' en die bevat dan de action en daarna de visited keys opzoeken in dictionary (dus de actions)"""
 
 
 
