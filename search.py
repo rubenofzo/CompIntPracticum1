@@ -18,10 +18,14 @@ Pacman agents (in searchAgents.py).
 """
 
 from asyncio.windows_events import NULL
+from doctest import debug_script
+from importlib.machinery import DEBUG_BYTECODE_SUFFIXES
 from inspect import stack
 from pickletools import StackObject
-from typing import DefaultDict
+from sre_parse import State
+from typing import DefaultDict, List
 import util
+from game import Directions
 
 class SearchProblem:
     """
@@ -91,42 +95,78 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+    
+    visited = set()
+    path=[]
+    dicto = {}
     newStack = util.Stack()
-    newStack.push(problem.getStartState())
-    return depthFirstSearchHelper(newStack, problem)
+    succ = util.Stack()
+    start = problem.getStartState()
+    newStack.push(start)
+    return depthFirstSearchHelper(newStack, problem, dicto, visited)
+    
    
         
 
-def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem):
-    visited = []
-    path=[]
-    dicto = {}
-    succ = util.Stack()
-    if stack.isEmpty:
-        util.raiseNotDefined
-    else: 
-        current = stack.pop
-        if visited.index(current) == NULL:
-           visited = visited.append(current)
-           if problem.isGoalState(current):
-               for node in visited:
-                   path = path.append(dicto.get(node))
-               return path
-           else :
-               succ = problem.getSuccesors(current)
-               dicto.update({(succ[0])[0]: (succ[0])[1]},{(succ[1])[0]: (succ[1])[1]})
-               stack = current.push(succ[0])
-               nextSucc = nextSucc.push(stack[0])
-               return depthFirstSearchHelper(nextSucc, problem)
+#def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem, visited: set(), path: list, dicto: dict, succ: util.Stack):
+    
+    
+#    if not stack.isEmpty():
+#        current = stack.pop()
+#        if current not in visited:
+#           visited = visited.add(current)
+#           if problem.isGoalState(current):
+#               for node in visited:
+#                   path = path.append(dicto.get(node))
+#               return path
+#           else :
+#               successors = problem.getSuccessors(current)
+#               for successor, action, _ in successors:
+#                  if successor not in visited:
+#                      stack.push((successor, actions + [action]))
+#                      dicto.update({succesor[0]: actions})
+#                      return depthFirstSearchHelper(stack, problem, visited, path, dicto, succ)
+#               return  depthFirstSearchHelper(stack, problem, visited, path, dicto, succ)
+#        else:
+#            return depthFirstSearchHelper(stack, problem, visited, path, dicto, succ)
+#    else:
+#        return print("Failed")
+   
+def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem, succDictionary: dict, visited: set()):
+	#return [problem.getSuccessors(queue.pop())[0][1]]
+	# loop as long as there are still states to explore
+    if not stack.isEmpty():
+        currentState = stack.pop()
+        visited.add(currentState)
+     	# if the state we are exploring is the goal -> return path to goal
+        if problem.isGoalState(currentState):
+      
+            return returnPath(visited, succDictionary) #[Directions.WEST]
+    	# else we expand the node
+
+        
+        successors = problem.getSuccessors(currentState)
+        for succ,actions,costs in successors:
+                if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
+        	#add tuple of predisseccor and action to get to succesor state with key succesor state
+                    succDictionary.update({succ : (currentState,actions)})
+                    stack.push(succ) #add the succesor state to the queue
+                    return depthFirstSearchHelper(stack, problem, succDictionary, visited)
         else:
-            return depthFirstSearchHelper(stack, problem)
+            return None
 
-        """Maak dictonary voor de succ met als key de 'node' en die bevat dan de action en daarna de visited keys opzoeken in dictionary (dus de actions)"""
-
+def returnPath(visited: set(), succDictionary: dict):
+    print(succDictionary)
+    path = []
+    for node in visited:
+        path = path.append(succDictionary.get(node[0]))
+        print(path)
+        return path
 
 
 
 def breadthFirstSearch(problem: SearchProblem):
+
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     queue = util.Queue()
