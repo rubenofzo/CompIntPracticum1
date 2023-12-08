@@ -90,21 +90,73 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+    
+    visited = set()
+    path=[]
+    dicto = {}
     newStack = util.Stack()
-    newStack.push(problem.getStartState())
-    return depthFirstSearchHelper(newStack, problem)
+    succ = util.Stack()
+    start = problem.getStartState()
+    newStack.push(start)
+    return depthFirstSearchHelper(newStack, problem, dicto, visited)
+    
+   
+        
 
-def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem):
-    if stack.isEmpty:
-        util.raiseNotDefined
-    else: 
-        t = stack.pop
-        if problem.isGoalState(t):
-            return t
+#def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem, visited: set(), path: list, dicto: dict, succ: util.Stack):
+    
+    
+#    if not stack.isEmpty():
+#        current = stack.pop()
+#        if current not in visited:
+#           visited = visited.add(current)
+#           if problem.isGoalState(current):
+#               for node in visited:
+#                   path = path.append(dicto.get(node))
+#               return path
+#           else :
+#               successors = problem.getSuccessors(current)
+#               for successor, action, _ in successors:
+#                  if successor not in visited:
+#                      stack.push((successor, actions + [action]))
+#                      dicto.update({succesor[0]: actions})
+#                      return depthFirstSearchHelper(stack, problem, visited, path, dicto, succ)
+#               return  depthFirstSearchHelper(stack, problem, visited, path, dicto, succ)
+#        else:
+#            return depthFirstSearchHelper(stack, problem, visited, path, dicto, succ)
+#    else:
+#        return print("Failed")
+   
+def depthFirstSearchHelper(stack: util.Stack, problem: SearchProblem, succDictionary: dict, visited: set()):
+	#return [problem.getSuccessors(queue.pop())[0][1]]
+	# loop as long as there are still states to explore
+    if not stack.isEmpty():
+        currentState = stack.pop()
+        visited.add(currentState)
+     	# if the state we are exploring is the goal -> return path to goal
+        if problem.isGoalState(currentState):
+      
+            return returnPath(visited, succDictionary) #[Directions.WEST]
+    	# else we expand the node
+
+        
+        successors = problem.getSuccessors(currentState)
+        for succ,actions,costs in successors:
+                if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
+        	#add tuple of predisseccor and action to get to succesor state with key succesor state
+                    succDictionary.update({succ : (currentState,actions)})
+                    stack.push(succ) #add the succesor state to the queue
+                    return depthFirstSearchHelper(stack, problem, succDictionary, visited)
         else:
-            for succ in problem.getSuccesors(t):
-                stack = stack.push(succ)
-            return depthFirstSearchHelper(stack, problem)
+            return None
+
+def returnPath(visited: set(), succDictionary: dict):
+    print(succDictionary)
+    path = []
+    for node in visited:
+        path = path.append(succDictionary.get(node[0]))
+        print(path)
+        return path
 
 
 
