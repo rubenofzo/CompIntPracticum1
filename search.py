@@ -114,32 +114,37 @@ def breadthFirstSearch(problem: SearchProblem):
     queue = util.Queue()
     startState = problem.getStartState()
     queue.push(startState)
-    succDictionary = {startState : None}
-    return breadthFirstSearchHelper(queue, problem, succDictionary)
+    succDictionary = {} #Dictionary which stores the State and Action to get to this state
+    succDictionary.update({startState : None})
+    return breadthFirstSearchHelper(queue, problem, succDictionary, startState)
 
-def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem, succDictionary: dict):
-    #return [problem.getSuccessors(queue.pop())[0][1]]
-    if not queue.isEmpty():
-        currentState = queue.pop()
+def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem, succDictionary: dict, startState):
+    # loop as long as there are still states to explore
+    if not queue.isEmpty(): 
+        currentState = queue.pop() 
+         # if the state we are exploring is the goal -> return path to goal
         if problem.isGoalState(currentState):
-            return [Directions.WEST] #returnPath(currentState, succDictionary)
-        else:
-            successors = problem.getSuccessors(currentState[0])
-            for succ in successors:
-                if succDictionary.get(succ)==None:
-                  succDictionary.update({succ : currentState})
-                  queue.push(succ)
-            return breadthFirstSearchHelper(queue, problem, succDictionary)
+            return returnPath(currentState, succDictionary, startState) #[Directions.WEST]
+        # else we expand the node
+        successors = problem.getSuccessors(currentState)
+        for succ,actions,costs in successors: 
+          if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
+            #add tuple of predisseccor and action to get to succesor state with key succesor state
+            print((currentState,actions))
+            succDictionary.update({succ : (currentState,actions)}) 
+            queue.push(succ) #add the succesor state to the queue
+        return breadthFirstSearchHelper(queue, problem, succDictionary, startState)
     return None
 
-
-def returnPath(finalState, succDictionary: dict):
+def returnPath(finalState, succDictionary: dict, startState):
     path = []
-    currentlySearching = finalState
-    while not currentlySearching == None:
-        path.append(currentlySearching[1])
-        currentlySearching = succDictionary.get(currentlySearching)
-    return path
+    currentlySearching = succDictionary.get(finalState) # begin with searching on the final state
+    while not currentlySearching[0] == startState: # stop with searching if on the beginning state which has action == NONE
+        path.append(currentlySearching[1]) #add action to path
+        currentlySearching = succDictionary.get(currentlySearching[0]) #search for the next entry in the dictionary
+        print(currentlySearching)
+    path.append(currentlySearching[1]) # add the first step
+    return path[::-1] # return the reversed path
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
