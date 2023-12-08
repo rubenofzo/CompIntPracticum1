@@ -176,13 +176,12 @@ def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem, succDict
         currentState = queue.pop() 
          # if the state we are exploring is the goal -> return path to goal
         if problem.isGoalState(currentState):
-            return returnPath(currentState, succDictionary, startState) #[Directions.WEST]
+            return returnPath(currentState, succDictionary, startState) 
         # else we expand the node
         successors = problem.getSuccessors(currentState)
-        for succ,actions,costs in successors: 
+        for succ,actions,_ in successors: 
           if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
-            #add tuple of predisseccor and action to get to succesor state with key succesor state
-            print((currentState,actions))
+            #add tuple of predecessor and action to get to successor state with key successor 
             succDictionary.update({succ : (currentState,actions)}) 
             queue.push(succ) #add the succesor state to the queue
         return breadthFirstSearchHelper(queue, problem, succDictionary, startState)
@@ -190,11 +189,12 @@ def breadthFirstSearchHelper(queue: util.Queue, problem: SearchProblem, succDict
 
 def returnPath(finalState, succDictionary: dict, startState):
     path = []
+    print("final State", finalState)
     currentlySearching = succDictionary.get(finalState) # begin with searching on the final state
     while not currentlySearching[0] == startState: # stop with searching if on the beginning state which has action == NONE
         path.append(currentlySearching[1]) #add action to path
         currentlySearching = succDictionary.get(currentlySearching[0]) #search for the next entry in the dictionary
-        print(currentlySearching)
+        print("retracing",currentlySearching)
     path.append(currentlySearching[1]) # add the first step
     return path[::-1] # return the reversed path
 
@@ -213,7 +213,39 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    priorityQueue = util.PriorityQueue()
+    startState = problem.getStartState()
+    priorityQueue.push((startState,1),evaluationFunction(startState, 0,heuristic, problem)) #we store tuples with state and depth of state into the Pqueue
+    succDictionary = {} #Dictionary which stores the State and Action to get to this state
+    succDictionary.update({startState : None})
+    return aStarHelper(priorityQueue, problem, succDictionary, heuristic, startState)
+
+def aStarHelper(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, heuristic, startState):
+  # loop as long as there are still nodes to explore
+    if not priorityQueue.isEmpty(): 
+        currentNode = priorityQueue.pop() 
+        print("now searching",currentNode)
+        currentState = currentNode[0]
+        currentDepth = currentNode[1]
+        # if the state we are exploring is the goal -> return path to goal
+        if problem.isGoalState(currentState):
+            print("path found",currentState)
+            return returnPath(currentState, succDictionary, startState) 
+        # else we expand the node
+        successors = problem.getSuccessors(currentState)
+        for succ,action,cost in successors: 
+          if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
+            #add tuple of predecessor and action to get to successor state with key successor 
+            succDictionary.update({succ : (currentState,action)}) 
+            # costs are determined
+            evaluationValue = evaluationFunction(succ, currentDepth, heuristic, problem) 
+            #add the succesor state to the queue toghether with the updated depth and cost
+            priorityQueue.push((succ,currentDepth+1),evaluationValue) 
+        return aStarHelper(priorityQueue, problem, succDictionary, heuristic, startState)
+    return None
+
+def evaluationFunction(state, depth, heuristic, problem):
+    return heuristic(state,problem)+(depth+1) # cost is the heuristic cost plus the depth of the predeccesor plus 1
 
 
 # Abbreviations
