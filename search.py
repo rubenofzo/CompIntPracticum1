@@ -181,6 +181,7 @@ def breadthFirstSearch(problem: SearchProblem):
 def breadthFirstSearchLoop(queue, problem: SearchProblem, succDictionary: dict, startState):
     # loop as long as there are still states to explore
     if not queue.isEmpty(): 
+
         currentState = queue.pop() 
          # if the state we are exploring is the goal -> return path to goal
         if problem.isGoalState(currentState):
@@ -229,9 +230,9 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     return aStarLoop(priorityQueue, problem, succDictionary, heuristic, startState)
 
 def aStarLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, heuristic, startState):
-  # loop as long as there are still nodes to explore
+    # loop as long as there are still nodes to explore
     if not priorityQueue.isEmpty(): 
-        currentNode = priorityQueue.pop() 
+        currentNode = priorityQueue.pop()
         print("now searching",currentNode)
         currentState = currentNode[0]
         currentDepth = currentNode[1] +1 #depth grows by one as we are now searching one layer lower
@@ -242,15 +243,28 @@ def aStarLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDic
         # else we expand the node
         successors = problem.getSuccessors(currentState)
         for succ,action,cost in successors: 
-          if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
+          #If the succesor is not already in the dictionary or if the succesor has lower costs then
+          if succesorIsValid(succ, succDictionary, cost):
             #add tuple of predecessor and action to get to successor state with key successor 
-            succDictionary.update({succ : (currentState,action)}) 
+            succDictionary.update({succ : (currentState,action,cost)}) 
             # costs are determined
             evaluationValue = evaluationFunction(succ, currentDepth, heuristic, problem) 
             #add the succesor state to the queue toghether with the updated depth and cost
             priorityQueue.push((succ,currentDepth),evaluationValue) 
         return aStarLoop(priorityQueue, problem, succDictionary, heuristic, startState)
     return None
+
+# Function to check if a succcesor should be searched on
+def succesorIsValid(succ, succDictionary,cost):
+    dicEntry = succDictionary.get(succ)
+    # if the succesor had not been found before it is valid to search on
+    if dicEntry==None: 
+       return True 
+    # if the succesor has a lower cost then the current entry it is valid to search on
+    _,_,c = dicEntry
+    if c > cost:
+       return True
+    return False
 
 def evaluationFunction(state, depth, heuristic, problem):
     return heuristic(state,problem)+depth # cost is the heuristic cost plus the depth of the predeccesor plus 1
