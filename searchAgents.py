@@ -279,7 +279,6 @@ class CornersProblem(search.SearchProblem):
 
     You must select a suitable state space and successor function
     """
-    cornersFound = []
 
     def __init__(self, startingGameState: pacman.GameState):
         """
@@ -339,7 +338,7 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-            "*** YOUR CODE HERE ***"
+            
             #snippet thst figures out if something is a wall
             pos,cornersLeft = state
             x,y = pos
@@ -356,7 +355,11 @@ class CornersProblem(search.SearchProblem):
                     lst = list(cornersLeft)
                     lst.remove(nextPosition)
                     cornersLeft = tuple(lst)
+
                 successors.append( ((nextPosition,cornersLeft), action, 1))
+
+            "*** YOUR CODE HERE ***"
+
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
