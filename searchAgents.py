@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from ast import If
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -276,6 +277,7 @@ class CornersProblem(search.SearchProblem):
 
     You must select a suitable state space and successor function
     """
+    cornersFound = []
 
     def __init__(self, startingGameState: pacman.GameState):
         """
@@ -299,14 +301,21 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        #TOTEST
+        return self.startingPosition # Just return the starting position
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #TODO
+        
+        if len(self.cornersFound) > 3: #  && state not in cornersFound
+            # if state in self.corners then return true
+            util.raiseNotDefined()
+        return False 
 
     def getSuccessors(self, state: Any):
         """
@@ -327,6 +336,16 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
+
+            x,y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                nextState = (nextx, nexty)
+                successors.append( ( nextState, action, 1) )
+                if (nextState in self.corners) and (not nextState in self.cornersFound):
+                    self.cornersFound.append( ( nextState, action, 1) ) #how do i make sure that this is not global but unique?
 
             "*** YOUR CODE HERE ***"
 
