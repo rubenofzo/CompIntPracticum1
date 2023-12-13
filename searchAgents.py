@@ -34,6 +34,8 @@ description for details.
 Good luck and happy searching!
 """
 
+from ast import If
+from math import nextafter
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -42,6 +44,7 @@ import util
 import time
 import search
 import pacman
+import sys
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -292,6 +295,9 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        # code expands 1967 nodes for MediumCorners and 4157 in largeMap
+        # which means that the recursion limit should be higher
+        sys.setrecursionlimit(4200) 
 
     def getStartState(self):
         """
@@ -299,14 +305,19 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # return the starting position and all corners that are going to be visited
+        return (self.startingPosition,self.corners) 
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #as long as there are corners left to explore the goal is not met
+        _,cornersLeft = state
+        if not len(cornersLeft) > 0:
+            return True
+        return False
 
     def getSuccessors(self, state: Any):
         """
@@ -327,6 +338,25 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
+            
+            #snippet thst figures out if something is a wall
+            pos,cornersLeft = state
+            x,y = pos
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            #
+
+            #if no wall is hit then add it as a succesor
+            if not hitsWall:
+                nextPosition = (nextx, nexty)
+                if (nextPosition in cornersLeft): #if the nexPosition is a not yet found corner
+                    #then remove it from the tuple
+                    lst = list(cornersLeft)
+                    lst.remove(nextPosition)
+                    cornersLeft = tuple(lst)
+
+                successors.append( ((nextPosition,cornersLeft), action, 1))
 
             "*** YOUR CODE HERE ***"
 
