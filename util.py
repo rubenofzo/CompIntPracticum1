@@ -138,7 +138,7 @@ class Stack:
     def push(self,item):
         "Push 'item' onto the stack"
         self.list.append(item)
-
+         
     def pop(self):
         "Pop the most recently pushed item from the stack"
         return self.list.pop()

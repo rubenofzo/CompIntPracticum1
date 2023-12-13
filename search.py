@@ -210,7 +210,38 @@ def returnPath(finalState, succDictionary: dict, startState):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pqueue = util.PriorityQueue()
+    startState = problem.getStartState()
+    pqueue.push(startState, 0) #we store tuples with state and depth of state into the Pqueue
+    succDictionary = {} #Dictionary which stores the State and Action to get to this state
+    succDictionary.update({startState : None})
+    return uniformCostSearchHelp (pqueue, problem, succDictionary, startState)
+  
+
+def uniformCostSearchHelp(pqueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, startState):
+     # loop as long as there are still nodes to explore
+    if not pqueue.isEmpty(): 
+        currentNode = pqueue.pop() 
+        print("now searching",currentNode)
+        currentState = currentNode[0]
+
+        # if the state we are exploring is the goal -> return path to goal
+        if problem.isGoalState(currentState):
+            print("path found",currentState)
+            return returnPath(currentState, succDictionary, startState) 
+        # else we expand the node
+        successors = problem.getSuccessors(currentNode)
+        for succ,action,cost in successors: 
+          if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
+            #add tuple of predecessor and action to get to successor state with key successor 
+            succDictionary.update({succ : (currentState,action)}) 
+            # costs are determined
+            costs = cost
+            #add the succesor state to the queue toghether with the updated cost
+            pqueue.push(succ,costs) 
+        return uniformCostSearchHelp(pqueue, problem, succDictionary, startState)
+    return None
+
 
 def nullHeuristic(state, problem=None):
     """
