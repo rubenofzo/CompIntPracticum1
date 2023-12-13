@@ -34,8 +34,6 @@ description for details.
 Good luck and happy searching!
 """
 
-from ast import If
-from math import nextafter
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -376,7 +374,6 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
-
 def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -390,11 +387,28 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    #finds the cheapest path from position to all positionsLeft
+    def minDistanceList(position,positionsLeft):
+       if positionsLeft == []:
+           return 0
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+       distanceList = []
+       for pos in positionsLeft:
+         distanceList.append(manhattenDistance(position,pos))
+
+       closestDistance = min(distanceList)
+       closestCornerCoordinate = positionsLeft[distanceList.index(closestDistance)]
+       positionsLeft.remove(closestCornerCoordinate)
+       return closestDistance + minDistanceList(closestCornerCoordinate,positionsLeft)
+
+    def manhattenDistance(xy1, xy2):
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    startPosition,cornersToSearch = state
+    return minDistanceList(startPosition,list(cornersToSearch))
+
+
+    
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

@@ -221,24 +221,22 @@ def uniformCostSearch(problem: SearchProblem):
 def uniformCostSearchHelp(pqueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, startState):
      # loop as long as there are still nodes to explore
     if not pqueue.isEmpty(): 
-        currentNode = pqueue.pop() 
-        print("now searching",currentNode)
-        currentState = currentNode[0]
+        currentState = pqueue.pop() 
+        print("now searching",currentState)
 
         # if the state we are exploring is the goal -> return path to goal
         if problem.isGoalState(currentState):
             print("path found",currentState)
             return returnPath(currentState, succDictionary, startState) 
         # else we expand the node
-        successors = problem.getSuccessors(currentNode)
+        successors = problem.getSuccessors(currentState)
         for succ,action,cost in successors: 
           if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
             #add tuple of predecessor and action to get to successor state with key successor 
             succDictionary.update({succ : (currentState,action)}) 
-            # costs are determined
-            costs = cost
             #add the succesor state to the queue toghether with the updated cost
-            pqueue.push(succ,costs) 
+            print(cost)
+            pqueue.push(succ,cost) 
         return uniformCostSearchHelp(pqueue, problem, succDictionary, startState)
     return None
 
