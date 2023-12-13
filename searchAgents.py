@@ -401,6 +401,7 @@ class AStarCornersAgent(SearchAgent):
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, cornersHeuristic)
         self.searchType = CornersProblem
+        
 
 class FoodSearchProblem:
     """
@@ -456,7 +457,7 @@ class AStarFoodSearchAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
-        self.searchType = FoodSearchProblem
+        self.searchType = FoodSearchProblem 
 
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
@@ -488,7 +489,35 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    
+    food_positions = []
+    counter = 0
+    counter2 = 0
+    for row in foodGrid:
+        counter = counter + 1
+        for field in row:
+            counter2 = counter2 + 1
+            if field == True:
+                food_positions.append((counter,counter2))
+    return minDistance (position, food_positions)
+
+def minDistance(position, food_positions):
+    distanceList = []
+    print(food_positions)
+    for foodpos in food_positions:
+       distanceList.append(manhattan(position, foodpos))
+    mindistance = min(distanceList)
+    newPosition = food_positions[mindistance]
+    food_positions.remove(food_positions[mindistance])
+    return minDistance(mindistance, food_positions.remove(foodpos))
+
+def manhattan(position, goalpos):
+    return abs(position[0] - goalpos[0]) + abs(position[1] - goalpos[1])
+
+
+
+     
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
