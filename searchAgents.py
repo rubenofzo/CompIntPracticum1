@@ -34,8 +34,6 @@ description for details.
 Good luck and happy searching!
 """
 
-from ast import If
-from math import nextafter
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -376,7 +374,6 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
-
 def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -390,11 +387,34 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #finds the cheapest path from position to all positionsLeft
+    def minDistanceList(position,positionList):
+       #if there are no positions to calculate distances to, the distance is 0
+       if positionList == []:
+           return 0
+       #make a list of mahattan distances from the position to everything in the positionList
+       distanceList = []
+       for pos in positionList:
+         distanceList.append(manhattanDistance(position,pos))
+       #find the closest coordinate in the list and the distance to it
+       closestDistance = min(distanceList)
+       positionFound = positionList[distanceList.index(closestDistance)]
+       positionList.remove(positionFound) #remove the found position from the list that is going to be searched next
+       #find the cheapest path from the new found position to the left over positions
+       return closestDistance + minDistanceList(positionFound,positionList)
+
+    #calculates manhattanDistance between 2 points
+    def manhattanDistance(xy1, xy2):
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    startPosition,cornersToSearch = state
+    #The heuristic value will be the mahattan distance from the starting position to the closest corner
+    #plus the distance from that corner to the corner closest to it, repeat this until no corners remain
+    return minDistanceList(startPosition,list(cornersToSearch))
+
+
+    
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

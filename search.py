@@ -229,7 +229,7 @@ def uniformCostSearchHelp(pqueue: util.PriorityQueue, problem: SearchProblem, su
             #print("path found",currentState)
             return returnPath(currentState, succDictionary, startState) 
         # else we expand the node
-        successors = problem.getSuccessors(currentState)
+        successors = problem.getSuccessors(currentNode)
         for succ,action,cost in successors: 
           if succesorIsValid(succ, succDictionary, cost): #If the entry is not already in the dictionary
             #add tuple of predecessor and action to get to successor state with key successor 
