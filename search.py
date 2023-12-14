@@ -174,36 +174,33 @@ def breadthFirstSearch(problem: SearchProblem):
     queue = util.Queue()
     startState = problem.getStartState()
     queue.push(startState)
-    succDictionary = {} #Dictionary which stores the State and Action to get to this state
-    succDictionary.update({startState : None})
-    return breadthFirstSearchLoop(queue, problem, succDictionary, startState)
+    succDictionary = {startState : None} #Dictionary which stores the State and Action to get to this state
+    return StandardSearchLoop(queue, problem, succDictionary, startState)
 
-def breadthFirstSearchLoop(queue, problem: SearchProblem, succDictionary: dict, startState):
+#Standard search loop which can be used for bfs(queue) and dfs(stack)
+#Returns a path from the startstate to the goalstate (fastest if bfs is used)
+def StandardSearchLoop(queue, problem: SearchProblem, succDictionary: dict, startState):
     # loop as long as there are still states to explore
-    if not queue.isEmpty(): 
-
-        currentState = queue.pop() 
-         # if the state we are exploring is the goal -> return path to goal
-        if problem.isGoalState(currentState):
-            return returnPath(currentState, succDictionary, startState) 
-        # else we expand the node
-        successors = problem.getSuccessors(currentState)
-        for succ,actions,_ in successors: 
-          if not succ in succDictionary: #If the entry is not already in the dictionary
-            #add tuple of predecessor and action to get to successor state with key successor 
-            succDictionary.update({succ : (currentState,actions)}) 
-            queue.push(succ) #add the succesor state to the queue
-        return breadthFirstSearchLoop(queue, problem, succDictionary, startState)
-    return None
+    if queue.isEmpty(): 
+        return None
+    currentState = queue.pop() 
+    # if the state we are exploring is the goal -> return path to goal
+    if problem.isGoalState(currentState):
+       return returnPath(currentState, succDictionary, startState) 
+    # else we expand the node
+    for succ,action,_ in problem.getSuccessors(currentState): 
+      if not succ in succDictionary: #If the entry is not already in the dictionary
+         #add tuple of predecessor and action to get to successor state with key successor 
+         succDictionary.update({succ : (currentState,action)}) 
+         queue.push(succ) #add the succesor state to the queue
+    return StandardSearchLoop(queue, problem, succDictionary, startState)
 
 def returnPath(finalState, succDictionary: dict, startState):
     path = []
-    #print("final State", finalState)
     currentlySearching = succDictionary.get(finalState) # begin with searching on the final state
     while not currentlySearching[0] == startState: # stop with searching if on the beginning state which has action == NONE
         path.append(currentlySearching[1]) #add action to path
         currentlySearching = succDictionary.get(currentlySearching[0]) #search for the next entry in the dictionary
-        #print("retracing",currentlySearching)
     path.append(currentlySearching[1]) # add the first step
     return path[::-1] # return the reversed path
 
@@ -230,7 +227,7 @@ def uniformCostSearchHelp(pqueue: util.PriorityQueue, problem: SearchProblem, su
             return returnPath(currentState, succDictionary, startState) 
         # else we expand the node
         successors = problem.getSuccessors(currentState)
-        for succ,action,cost in successors: 
+        for succ,action,cost in problem.getSuccessors(currentState): 
           if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
             #add tuple of predecessor and action to get to successor state with key successor 
             succDictionary.update({succ : (currentState,action)}) 
@@ -254,33 +251,32 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     priorityQueue = util.PriorityQueue()
     startState = problem.getStartState()
     priorityQueue.push((startState,1),evaluationFunction(startState, 0,heuristic, problem)) #we store tuples with state and cost of state into the Pqueue
-    succDictionary = {} #Dictionary which stores the State and Action to get to this state
-    succDictionary.update({startState : None})
+    succDictionary = {startState : None} #Dictionary which stores the State and Action to get to this state
     return aStarLoop(priorityQueue, problem, succDictionary, heuristic, startState)
 
-def aStarLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, heuristic, startState):
+def aStarLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, heuristic, startState):\
     # loop as long as there are still nodes to explore
-    if not priorityQueue.isEmpty(): 
-        currentState,currentCost = priorityQueue.pop()
-        #print("now searching",currentNode)
-        # if the state we are exploring is the goal -> return path to goal
-        if problem.isGoalState(currentState):
-            #print("path found",currentState)
-            return returnPath(currentState, succDictionary, startState) 
-        # else we expand the node
-        successors = problem.getSuccessors(currentState)
-        for succ,action,cost in successors: 
-          completeCost = cost + currentCost #the complete cost to get to this point in the path
-          #If the succesor is not already in the dictionary or if the succesor has lower costs then
-          if succesorIsValid(succ, succDictionary, completeCost):
+    if priorityQueue.isEmpty(): 
+        return None
+    currentState,currentCost = priorityQueue.pop()
+    # if the state we are exploring is the goal -> return path to goal
+    if problem.isGoalState(currentState):
+        return returnPath(currentState, succDictionary, startState) 
+    # else we expand the node
+    for succ,action,cost in problem.getSuccessors(currentState): 
+        completeCost = cost + currentCost #the complete cost to get to this point in the path
+        #If the succesor is not already in the dictionary or if the succesor has lower costs then
+        if succesorIsValid(succ, succDictionary, completeCost):
             #add tuple of predecessor and action to get to successor state with key successor 
             succDictionary.update({succ : (currentState,action,completeCost)}) 
             # heuristic value is determined
             evaluationValue = evaluationFunction(succ, completeCost, heuristic, problem) 
             #add the succesor state to the queue toghether with the updated cost
             priorityQueue.push((succ,completeCost),evaluationValue) 
-        return aStarLoop(priorityQueue, problem, succDictionary, heuristic, startState)
-    return None
+    return aStarLoop(priorityQueue, problem, succDictionary, heuristic, startState)
+
+def evaluationFunction(state, cost, heuristic, problem):
+    return heuristic(state,problem)+cost # cost is the heuristic cost plus the cost to get in this state
 
 # Function to check if a succcesor should be searched on
 def succesorIsValid(succ, succDictionary,cost):
@@ -294,9 +290,6 @@ def succesorIsValid(succ, succDictionary,cost):
      if c > cost:     # if the succesor has a lower cost then the current entry it is valid to search on
        return True
     return False
-
-def evaluationFunction(state, cost, heuristic, problem):
-    return heuristic(state,problem)+cost # cost is the heuristic cost plus the cost to get in this state
 
 
 # Abbreviations
