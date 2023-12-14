@@ -313,9 +313,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         #as long as there are corners left to explore the goal is not met
         _,cornersLeft = state
-        if not len(cornersLeft) > 0:
-            return True
-        return False
+        return not len(cornersLeft) > 0
 
     def getSuccessors(self, state: Any):
         """
@@ -327,7 +325,6 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -336,10 +333,9 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-            
+            "*** YOUR CODE HERE ***"
             #snippet thst figures out if something is a wall
-            pos,cornersLeft = state
-            x,y = pos
+            (x,y),cornersLeft = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
@@ -353,11 +349,7 @@ class CornersProblem(search.SearchProblem):
                     lst = list(cornersLeft)
                     lst.remove(nextPosition)
                     cornersLeft = tuple(lst)
-
                 successors.append( ((nextPosition,cornersLeft), action, 1))
-
-            "*** YOUR CODE HERE ***"
-
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
