@@ -404,14 +404,15 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
        #find the cheapest path from the new found position to the left over positions
        return closestDistance + minDistanceList(positionFound,positionList)
 
-    #calculates manhattanDistance between 2 points
-    def manhattanDistance(xy1, xy2):
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
     startPosition,cornersToSearch = state
     #The heuristic value will be the mahattan distance from the starting position to the closest corner
     #plus the distance from that corner to the corner closest to it, repeat this until no corners remain
     return minDistanceList(startPosition,list(cornersToSearch))
+
+ #calculates manhattanDistance between 2 points
+def manhattanDistance(xy1, xy2):
+     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 
     
@@ -421,6 +422,7 @@ class AStarCornersAgent(SearchAgent):
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, cornersHeuristic)
         self.searchType = CornersProblem
+        
 
 class FoodSearchProblem:
     """
@@ -476,7 +478,8 @@ class AStarFoodSearchAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
-        self.searchType = FoodSearchProblem
+        self.searchType = FoodSearchProblem 
+        sys.setrecursionlimit(7000)
 
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
@@ -508,7 +511,41 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    
+    food_positions = foodGrid.asList()
+    #counter = 0
+    #counter2 = 0
+    #for row in foodGrid:
+    #    counter = counter + 1
+    #    for field in row:
+    #        counter2 = counter2 + 1
+    #        if field == True:
+    #            food_positions.append((counter,counter2))
+    return minDistance(position, food_positions)#finds the cheapest path from position to all positionsLeft
+
+def minDistance(position,foodPosList):
+       #if there are no positions to calculate distances to, the distance is 0
+       if foodPosList == []:
+           return 0
+       #make a list of mahattan distances from the position to everything in the positionList
+       distanceList = []
+       for food in foodPosList:
+         distanceList.append(manhattanDistance(position,food))
+       #find the closest coordinate in the list and the distance to it
+       closestDistance = min(distanceList)
+       newPos = foodPosList[distanceList.index(closestDistance)]
+       foodPosList.remove(newPos) #remove the found position from the list that is going to be searched next
+       #find the cheapest path from the new found position to the left over positions
+       return closestDistance + minDistance(newPos,foodPosList)
+
+
+
+
+
+
+
+     
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
