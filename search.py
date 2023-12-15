@@ -94,13 +94,13 @@ def depthFirstSearch(problem: SearchProblem):
     stack = util.Stack()
     startState = problem.getStartState()
     stack.push((startState, []))  # Using a tuple to store state and its path
-
+    startState = problem.getStartState()
     visited = set()  # To keep track of visited states
 
     while not stack.isEmpty():
         currentNode, path = stack.pop()
 
-        if currentState in visited:
+        if currentNode in visited:
             continue  # Skip already visited states to prevent loops
 
         visited.add(currentNode)
