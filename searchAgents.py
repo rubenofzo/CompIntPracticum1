@@ -551,10 +551,6 @@ def manhattanDistance(p1, p2):
 
 
 
-# Functie voor het berekenen van de Manhattan-afstand tussen twee punten
-def manhattanDistance(p1, p2):
-    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-
 
 
 
@@ -593,13 +589,9 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        state = startPosition
-        distances = []
-        foods = food.asList()
-        for food in foods:
-            distances.append(mazeDistance(state, food, self.gameState))
-        closest = min(distances)
-        positionclosest = foods[distances.index(closest)]
+        path = search.astar(problem) 
+        return path
+       
         
         
 
@@ -641,7 +633,13 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        
+            # Get all remaining food pellets
+        foods = self.food.asList()
+
+        # Find the closest food pellet to Pac-Man
+        for food in foods:
+            if food == state:
+                return True
 
         
         
