@@ -530,15 +530,6 @@ def minDistance(position,foodPosList):
        #find the cheapest path from the new found position to the left over positions
        return closestDistance + minDistance(newPos,foodPosList)
 
-
-
-
-
-
-
-     
-
-
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):
