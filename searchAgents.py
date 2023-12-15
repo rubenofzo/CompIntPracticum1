@@ -406,6 +406,8 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
        return closestDistance + minDistanceList(positionFound,positionList)
 
 
+
+
     startPosition,cornersToSearch = state
     #The heuristic value will be the mahattan distance from the starting position to the closest corner
     #plus the distance from that corner to the corner closest to it, repeat this until no corners remain
@@ -516,20 +518,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     food_positions = foodGrid.asList()
     return minDistance(position, food_positions)#finds the cheapest path from position to all positionsLeft
 
-#def minDistance(position,foodPosList):
-#       #if there are no positions to calculate distances to, the distance is 0
-#       if foodPosList == []:
-#           return 0
-#       #make a list of mahattan distances from the position to everything in the positionList
-#       distanceList = []
-#       for food in foodPosList:
-#         distanceList.append(manhattanDistance(position,food))
-#       #find the closest coordinate in the list and the distance to it
-#       closestDistance = min(distanceList)
-#       newPos = foodPosList[distanceList.index(closestDistance)]
-#       foodPosList.remove(newPos) #remove the found position from the list that is going to be searched next
-#       #find the cheapest path from the new found position to the left over positions
-#       return closestDistance + minDistance(newPos,foodPosList)
+
 def minDistance(position, foodPosList):
   if not foodPosList == []:
     
