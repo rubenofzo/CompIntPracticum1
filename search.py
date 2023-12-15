@@ -91,22 +91,22 @@ def depthFirstSearch(problem: SearchProblem):
     """
     "*** YOUR CODE HERE ***"
     
-    #queue = util.Stack()
-    #startState = problem.getStartState()
-    #queue.push(startState)
-    #succDictionary = {} #Dictionary which stores the State and Action to get to this state
-    #succDictionary.update({startState : None})
-    #return breadthFirstSearchLoop(queue, problem, succDictionary, startState)
+    queue = util.Stack()
+    startState = problem.getStartState()
+    queue.push(startState)
+    succDictionary = {} #Dictionary which stores the State and Action to get to this state
+    succDictionary.update({startState : None})
+    return breadthFirstSearchLoop(queue, problem, succDictionary, startState)
 
 
-    visited = set()
-    path=[]
-    dicto = {}
-    newStack = util.Stack()
-    succ = util.Stack()
-    start = problem.getStartState()
-    newStack.push(start)
-    return depthFirstSearchHelper(newStack, problem, dicto, visited)
+    #visited = set()
+    #path=[]
+    #dicto = {}
+    #newStack = util.Stack()
+    #succ = util.Stack()
+    #start = problem.getStartState()
+    #newStack.push(start)
+    #return depthFirstSearchHelper(newStack, problem, dicto, visited)
     
    
         
@@ -234,6 +234,8 @@ def uniformCostSearchHelp(pqueue: util.PriorityQueue, problem: SearchProblem, su
           if succesorIsValid(succ, succDictionary, cost): #If the entry is not already in the dictionary
             #add tuple of predecessor and action to get to successor state with key successor 
             succDictionary.update({succ : (currentState,action,cost)}) 
+
+    
             #add the succesor state to the queue toghether with the updated cost
             pqueue.push(succ,cost) 
         return uniformCostSearchHelp(pqueue, problem, succDictionary, startState)
