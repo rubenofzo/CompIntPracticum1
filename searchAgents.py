@@ -397,20 +397,14 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
        #find the cheapest path from the new found position to the left over positions
        return closestDistance + minDistanceList(positionFound,positionList)
 
-
-
-
     startPosition,cornersToSearch = state
     #The heuristic value will be the mahattan distance from the starting position to the closest corner
     #plus the distance from that corner to the corner closest to it, repeat this until no corners remain
     return minDistanceList(startPosition,list(cornersToSearch))
 
- #calculates manhattanDistance between 2 points
+#calculates manhattanDistance between 2 points
 def manhattanDistance(xy1, xy2):
      return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
-
-
-    
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -418,7 +412,6 @@ class AStarCornersAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, cornersHeuristic)
         self.searchType = CornersProblem
         
-
 class FoodSearchProblem:
     """
     A search problem associated with finding the a path that collects all of the

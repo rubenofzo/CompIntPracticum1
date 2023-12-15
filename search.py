@@ -113,10 +113,6 @@ def depthFirstSearch(problem: SearchProblem):
             stack.push((succ, path + [action]))  # Append the action to the path
 
     return None  # Return None if no solution is found
-    
-
-
-
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
@@ -160,33 +156,26 @@ def uniformCostSearch(problem: SearchProblem):
     pqueue = util.PriorityQueue()
     startState = problem.getStartState()
     pqueue.push(startState, 0) #we store tuples with state and depth of state into the Pqueue
-    succDictionary = {} #Dictionary which stores the State and Action to get to this state
-    succDictionary.update({startState : None})
-    return uniformCostSearchHelp (pqueue, problem, succDictionary, startState)
-  
+    succDictionary = {startState : None} #Dictionary which stores the State and Action to get to this state
+    return uniformCostSearchHelp(pqueue, problem, succDictionary, startState)
 
 def uniformCostSearchHelp(pqueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, startState):
      # loop as long as there are still nodes to explore
-    if not pqueue.isEmpty(): 
-        currentState = pqueue.pop() 
-        #print("now searching",currentState)
-
-        # if the state we are exploring is the goal -> return path to goal
-        if problem.isGoalState(currentState):
-            #print("path found",currentState)
-            return returnPath(currentState, succDictionary, startState) 
-        # else we expand the node
-        for succ,action,cost in problem.getSuccessors(currentState): 
-          if succDictionary.get(succ)==None: #If the entry is not already in the dictionary
-            #add tuple of predecessor and action to get to successor state with key successor 
-            succDictionary.update({succ : (currentState,action,cost)}) 
-
-    
-            #add the succesor state to the queue toghether with the updated cost
-            pqueue.push(succ,cost) 
-        return uniformCostSearchHelp(pqueue, problem, succDictionary, startState)
-    return None
-
+    if pqueue.isEmpty(): 
+        return None
+    currentState = pqueue.pop() 
+    # if the state we are exploring is the goal -> return path to goal
+    if problem.isGoalState(currentState):
+       #print("path found",currentState)
+       return returnPath(currentState, succDictionary, startState) 
+    # else we expand the node
+    for succ,action,cost in problem.getSuccessors(currentState): 
+       if succesorIsValid(succ, succDictionary, cost): #If the entry is not already in the dictionary
+          #add tuple of predecessor and action to get to successor state with key successor 
+          succDictionary.update({succ : (currentState,action,cost)}) 
+          #add the succesor state to the queue toghether with the updated cost
+          pqueue.push(succ,cost) 
+    return uniformCostSearchHelp(pqueue, problem, succDictionary, startState)
 
 def nullHeuristic(state, problem=None):
     """
@@ -233,12 +222,10 @@ def succesorIsValid(succ, succDictionary,cost):
     # if the succesor had not been found before it is valid to search on
     if succ not in succDictionary: 
        return True 
-
     dicEntry = succDictionary.get(succ)
     if dicEntry is not None: # this line makes sure that the start state is not added again
-     _,_,c = dicEntry
-     if c > cost:     # if the succesor has a lower cost then the current entry it is valid to search on
-       return True
+      _,_,c = dicEntry
+      return c > cost     # if the succesor has a lower cost then the current entry it is valid to search on
     return False
 
 
