@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from importlib.resources import path
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -397,6 +398,8 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
        return closestDistance + minDistanceList(positionFound,positionList)
 
 
+
+
     startPosition,cornersToSearch = state
     #The heuristic value will be the mahattan distance from the starting position to the closest corner
     #plus the distance from that corner to the corner closest to it, repeat this until no corners remain
@@ -505,30 +508,29 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     "*** YOUR CODE HERE ***"
     
     food_positions = foodGrid.asList()
-    #counter = 0
-    #counter2 = 0
-    #for row in foodGrid:
-    #    counter = counter + 1
-    #    for field in row:
-    #        counter2 = counter2 + 1
-    #        if field == True:
-    #            food_positions.append((counter,counter2))
     return minDistance(position, food_positions)#finds the cheapest path from position to all positionsLeft
 
-def minDistance(position,foodPosList):
-       #if there are no positions to calculate distances to, the distance is 0
-       if foodPosList == []:
-           return 0
-       #make a list of mahattan distances from the position to everything in the positionList
-       distanceList = []
-       for food in foodPosList:
-         distanceList.append(manhattanDistance(position,food))
-       #find the closest coordinate in the list and the distance to it
-       closestDistance = min(distanceList)
-       newPos = foodPosList[distanceList.index(closestDistance)]
-       foodPosList.remove(newPos) #remove the found position from the list that is going to be searched next
-       #find the cheapest path from the new found position to the left over positions
-       return closestDistance + minDistance(newPos,foodPosList)
+
+def minDistance(position, foodPosList):
+  if not foodPosList == []:
+    
+    # For each food, calculate Manhattan distance and update total distance
+    for food in foodPosList:
+        distance = manhattanDistance(position, food)
+      #Delete the current food from the list and calculate the distance to the rest.
+        remaining_food = foodPosList.copy()
+        remaining_food.remove(food)
+    total_distance = distance + minDistance(food, remaining_food)
+    
+    return total_distance
+  return 0 
+
+
+# Functie voor het berekenen van de Manhattan-afstand tussen twee punten
+def manhattanDistance(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -559,7 +561,15 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        path = search.astar(problem) 
+        return path
+       
+        
+        
+
+
+
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -595,7 +605,16 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+            # Get all remaining food pellets
+        foods = self.food.asList()
+
+        # Find the closest food pellet to Pac-Man
+        for food in foods:
+            if food == state:
+                return True
+
+        
+        
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
