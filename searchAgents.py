@@ -341,12 +341,13 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             #
-
+        
             #if no wall is hit then add it as a succesor
             if not hitsWall:
                 nextPosition = (nextx, nexty)
-                if (nextPosition in cornersLeft): #if the nexPosition is a not yet found corner
-                    #then remove it from the tuple
+                #check if the nexPosition is a not yet found corner
+                if (nextPosition in cornersLeft): 
+                    #remove the nexPosition from the tuple
                     lst = list(cornersLeft)
                     lst.remove(nextPosition)
                     cornersLeft = tuple(lst)
@@ -380,27 +381,45 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-
+    """
     #finds the cheapest path from position to all positionsLeft
-    def minDistanceList(position,positionList):
-       #if there are no positions to calculate distances to, the distance is 0
-       if positionList == []:
+    def cheapestPath(position,positionList):
+       #if there are no positions left, return 0
+       if not positionList:
            return 0
        #make a list of mahattan distances from the position to everything in the positionList
-       distanceList = []
-       for pos in positionList:
-         distanceList.append(manhattanDistance(position,pos))
+       distanceList = [manhattanDistance(position,pos) for pos in positionList]
        #find the closest coordinate in the list and the distance to it
        closestDistance = min(distanceList)
-       positionFound = positionList[distanceList.index(closestDistance)]
-       positionList.remove(positionFound) #remove the found position from the list that is going to be searched next
-       #find the cheapest path from the new found position to the left over positions
-       return closestDistance + minDistanceList(positionFound,positionList)
 
+       #remove the found position from the list that is going to be searched next
+       positionFound = positionList.pop(distanceList.index(closestDistance))
+       
+       #find the cheapest path from the new found position to the left over positions
+       return closestDistance + cheapestPath(positionFound,positionList)
+    """
     startPosition,cornersToSearch = state
+
+    #finds the cheapest path from a positions to all positionsLeft
+    #in this case to all corners that exist
+    def cheapestPath(position,positionList):
+        #if there are no positions left, return 0
+        if not positionList:
+            return 0
+        #make a list of mahattan distances to all elements in positionList
+        distanceList = [manhattanDistance(position,pos) for pos in positionList]
+        closestDistance = min(distanceList)
+
+        #remove the found closest position from the list
+        positionFound = positionList.pop(distanceList.index(closestDistance))
+        
+        #recurse while counting the total distance
+        #this again finds the closest item near the current position, thus finding the fastest path through all items
+        return closestDistance + cheapestPath(positionFound,positionList)
+
     #The heuristic value will be the mahattan distance from the starting position to the closest corner
     #plus the distance from that corner to the corner closest to it, repeat this until no corners remain
-    return minDistanceList(startPosition,list(cornersToSearch))
+    return cheapestPath(startPosition,list(cornersToSearch))
 
 #calculates manhattanDistance between 2 points
 def manhattanDistance(xy1, xy2):
@@ -498,32 +517,35 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
     
     food_positions = foodGrid.asList()
-    return minDistance(position, food_positions)#finds the cheapest path from position to all positionsLeft
-
-
-def minDistance(position, foodPosList):
-  if not foodPosList == []:
+    #the closest food
+    minManhattan = min(manhattanDistance(position, pos) for pos in food_positions) if food_positions else 0
+    #the furtherst food
+    maxManhattan = max(manhattanDistance(position, pos) for pos in food_positions) if food_positions else 0
+    #shortest path from position through all foods
+    cheapestPath = cheapestPathHeuristic(position,food_positions)
     
-    # For each food, calculate Manhattan distance and update total distance
-    for food in foodPosList:
-        distance = manhattanDistance(position, food)
-      #Delete the current food from the list and calculate the distance to the rest.
-        remaining_food = foodPosList.copy()
-        remaining_food.remove(food)
-    total_distance = distance + minDistance(food, remaining_food)
-    
-    return total_distance
-  return 0 
+    #combine and weigh the heuristics
+    return 0.5 * cheapestPath + 0.25 * minManhattan + 0.25 * maxManhattan
 
+#finds the cheapest path from position to all positionsLeft
+def cheapestPathHeuristic(position,positionList):
+    def cheapestPathHelper(position,positionList,depth):
+        #if there are no positions left, return 0
+        if not positionList or depth > 100:
+            return 0
+        #make a list of mahattan distances to all elements in positionList
+        distanceList = [manhattanDistance(position,pos) for pos in positionList]
+        closestDistance = min(distanceList)
 
-# Functie voor het berekenen van de Manhattan-afstand tussen twee punten
-def manhattanDistance(p1, p2):
-    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-
-
+        #remove the found closest position from the list
+        positionFound = positionList.pop(distanceList.index(closestDistance))
+        
+        #recurse while counting the total distance
+        #this again finds the closest item near the current position, thus finding the fastest path through all items
+        return closestDistance + cheapestPathHelper(positionFound,positionList,depth+1)
+    return cheapestPathHelper(position,positionList,0)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -598,7 +620,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-            # Get all remaining food pellets
+        # Get all remaining food pellets
         foods = self.food.asList()
 
         # Find the closest food pellet to Pac-Man
