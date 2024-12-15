@@ -519,14 +519,14 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     
     food_positions = foodGrid.asList()
-    #the closest food
+    #distance to the closest food
     minManhattan = min(manhattanDistance(position, pos) for pos in food_positions) if food_positions else 0
-    #the furtherst food
+    #distance to the furtherst food
     maxManhattan = max(manhattanDistance(position, pos) for pos in food_positions) if food_positions else 0
-    #shortest path from position through all foods
+    #shortest path length from state through all foods
     cheapestPath = cheapestPathHeuristic(position,food_positions)
     
-    #combine and weigh the heuristics
+    #combine and weigh the heuristics for a more complex heuristic
     return 0.5 * cheapestPath + 0.25 * minManhattan + 0.25 * maxManhattan
 
 #finds the cheapest path from position to all positionsLeft
