@@ -314,7 +314,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         #as long as there are corners left to explore the goal is not met
         _,cornersLeft = state
-        return not len(cornersLeft) > 0
+        return  len(cornersLeft) <= 0
 
     def getSuccessors(self, state: Any):
         """
@@ -520,9 +520,10 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     
     food_positions = foodGrid.asList()
     #distance to the closest food
-    minManhattan = min(manhattanDistance(position, pos) for pos in food_positions) if food_positions else 0
+    manhattanDistances = [manhattanDistance(position, pos) for pos in food_positions]
+    minManhattan = min(manhattanDistances) if food_positions else 0
     #distance to the furtherst food
-    maxManhattan = max(manhattanDistance(position, pos) for pos in food_positions) if food_positions else 0
+    maxManhattan = max(manhattanDistances) if food_positions else 0
     #shortest path length from state through all foods
     cheapestPath = cheapestPathHeuristic(position,food_positions)
     
@@ -533,7 +534,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 def cheapestPathHeuristic(position,positionList):
     def cheapestPathHelper(position,positionList,depth):
         #if there are no positions left, return 0
-        if not positionList or depth > 100:
+        if not positionList or depth > 11:
             return 0
         #make a list of mahattan distances to all elements in positionList
         distanceList = [manhattanDistance(position,pos) for pos in positionList]

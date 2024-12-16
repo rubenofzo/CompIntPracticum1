@@ -76,7 +76,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem: SearchProblem):
+def depthFirstSearch(searchSpace: SearchProblem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -93,10 +93,10 @@ def depthFirstSearch(problem: SearchProblem):
     "*** YOUR CODE HERE ***"
 
     stack = util.Stack()
-    startState = problem.getStartState()
+    startState = searchSpace.getStartState()
     # We store tuples in the stack to store the state with the path to the state
     stack.push((startState, []))  
-    startState = problem.getStartState()
+    startState = searchSpace.getStartState()
     # we keep a set to track visited states 
     visited = set()  
 
@@ -106,45 +106,44 @@ def depthFirstSearch(problem: SearchProblem):
         # Skip already visited states to prevent loops
         if currentNode in visited:
             continue  
-
-        visited.add(currentNode)
     
         # Return the path if the goal state is reached
-        if problem.isGoalState(currentNode):
+        if searchSpace.isGoalState(currentNode):
             return path  
-
-        successors = problem.getSuccessors(currentNode)
+        
+        visited.add(currentNode)
+        successors = searchSpace.getSuccessors(currentNode)
         for succ, action, _ in successors:
             # Append the action to the path and push state and path to stack
             stack.push((succ, path + [action]))  
 
     return None  # Return None if no solution is found
 
-def breadthFirstSearch(problem: SearchProblem):
+def breadthFirstSearch(searchSpace: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     queue = util.Queue()
-    startState = problem.getStartState()
+    startState = searchSpace.getStartState()
     queue.push(startState)
 
     # Dictionary which stores a state as a key 
     # and has vlaues with tuples of the predecesor of the state and the Action to get to this state 
     succesorDictionary = {startState : None}
-    return BfsSearchLoop(queue, problem, succesorDictionary, startState)
+    return BfsSearchLoop(queue, searchSpace, succesorDictionary, startState)
 
 #Returns a path from the startstate to the goalstate
-def BfsSearchLoop(queue, problem: SearchProblem, succesorDictionary: dict, startState):
+def BfsSearchLoop(queue, searchSpace: SearchProblem, succesorDictionary: dict, startState):
     # loop as long as there are still states to explore
     if queue.isEmpty(): 
         return None
     currentState = queue.pop() 
 
     # if the state we are exploring is the goal -> return path to goal
-    if problem.isGoalState(currentState):
+    if searchSpace.isGoalState(currentState):
        return returnPath(currentState, succesorDictionary, startState) 
     
     # otherwise we expand the node
-    for succ,action,_ in problem.getSuccessors(currentState): 
+    for succ,action,_ in searchSpace.getSuccessors(currentState): 
       #check if the entry has not already been seen
       if not succ in succesorDictionary: 
          #add tuple of predecessor and action to get to successor state with key successor 
@@ -152,7 +151,7 @@ def BfsSearchLoop(queue, problem: SearchProblem, succesorDictionary: dict, start
          #add the succesor state to the queue
          queue.push(succ) 
     #recurse
-    return BfsSearchLoop(queue, problem, succesorDictionary, startState)
+    return BfsSearchLoop(queue, searchSpace, succesorDictionary, startState)
 
 #returns the path of actions from startstate to finalstate
 def returnPath(finalState, succDictionary: dict, startState):
@@ -165,10 +164,10 @@ def returnPath(finalState, succDictionary: dict, startState):
     path.append(currentlySearching[1]) # add the first step
     return path[::-1] # return the reversed path
 
-def uniformCostSearch(problem: SearchProblem):
+def uniformCostSearch(searchSpace: SearchProblem):
     """Search the node of least total cost first."""
     priorityQueue = util.PriorityQueue()
-    startState = problem.getStartState()
+    startState = searchSpace.getStartState()
 
     # we store tuples with state and cost of state into the Pqueue together with a sort value.
     # So like: ((State,CostValueOfState),SortValue) 
@@ -179,20 +178,20 @@ def uniformCostSearch(problem: SearchProblem):
     # and has vlaues with tuples of the predecesor of the state and the Action to get to this state 
     succDictionary = {startState : None}
 
-    return uniformCostSearchLoop(priorityQueue, problem, succDictionary, startState)
+    return uniformCostSearchLoop(priorityQueue, searchSpace, succDictionary, startState)
 
-def uniformCostSearchLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, startState):
+def uniformCostSearchLoop(priorityQueue: util.PriorityQueue, searchSpace: SearchProblem, succDictionary: dict, startState):
     # loop as long as there are still nodes to explore
     if priorityQueue.isEmpty(): 
         return None
     currentState,currentCost = priorityQueue.pop()
 
     # if the state we are exploring is the goal -> return path to goal
-    if problem.isGoalState(currentState):
+    if searchSpace.isGoalState(currentState):
        return returnPath(currentState, succDictionary, startState) 
     
     # otherwise we expand the node
-    for succ,action,cost in problem.getSuccessors(currentState): 
+    for succ,action,cost in searchSpace.getSuccessors(currentState): 
        #the complete cost to get to this point in the path
        completeCost = cost + currentCost
 
@@ -204,7 +203,7 @@ def uniformCostSearchLoop(priorityQueue: util.PriorityQueue, problem: SearchProb
           priorityQueue.push((succ,completeCost),completeCost)
         
     #recurse 
-    return uniformCostSearchLoop(priorityQueue, problem, succDictionary, startState)
+    return uniformCostSearchLoop(priorityQueue, searchSpace, succDictionary, startState)
 
 def nullHeuristic(state, problem=None):
     """
@@ -213,33 +212,33 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
+def aStarSearch(searchSpace: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     priorityQueue = util.PriorityQueue()
-    startState = problem.getStartState()
+    startState = searchSpace.getStartState()
 
     # we store tuples with state and cost of state into the Pqueue together with the evaluationValue (cost + heuristic).
     # So like: ((State,CostValueOfState),evaluationValue) 
     # the Pqueue automaticaly sorts on the evaluationValue, giving it the desired a star behaviour
-    priorityQueue.push((startState,1),evaluationFunction(startState, 0,heuristic, problem))
+    priorityQueue.push((startState,1),evaluationFunction(startState, 0,heuristic, searchSpace))
 
     # Dictionary which stores a state as a key 
     # and has vlaues with tuples of the predecesor of the state and the Action to get to this state 
     succDictionary = {startState : None}
-    return aStarLoop(priorityQueue, problem, succDictionary, heuristic, startState)
+    return aStarLoop(priorityQueue, searchSpace, succDictionary, heuristic, startState)
 
-def aStarLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDictionary: dict, heuristic, startState):
+def aStarLoop(priorityQueue: util.PriorityQueue, searchSpace: SearchProblem, succDictionary: dict, heuristic, startState):
     # loop as long as there are still nodes to explore
     while not priorityQueue.isEmpty():
         currentState,currentCost = priorityQueue.pop()
 
         # if the state we are exploring is the goal -> return path to goal
-        if problem.isGoalState(currentState):
+        if searchSpace.isGoalState(currentState):
             return returnPath(currentState, succDictionary, startState) 
         
         # otherwise we expand the node
-        for succ,action,cost in problem.getSuccessors(currentState): 
+        for succ,action,cost in searchSpace.getSuccessors(currentState): 
             completeCost = cost + currentCost #the complete cost to get to this point in the path
             
        #Check if the succesor is valid: if its not already in the dictionary or has been found with lower cost
@@ -248,14 +247,14 @@ def aStarLoop(priorityQueue: util.PriorityQueue, problem: SearchProblem, succDic
                 succDictionary.update({succ : (currentState,action,completeCost)}) 
 
                 #add the succesor state to the queue toghether with the updated heuristic/cost
-                evaluationValue = evaluationFunction(succ, completeCost, heuristic, problem) 
+                evaluationValue = evaluationFunction(succ, completeCost, heuristic, searchSpace) 
                 priorityQueue.push((succ,completeCost),evaluationValue) 
     
     #if a end goal is never found return none
     return None
 
-def evaluationFunction(state, cost, heuristic, problem):
-    return heuristic(state,problem)+cost # cost is the heuristic value plus the cost to get in this state
+def evaluationFunction(state, cost, heuristic, searchSpace):
+    return heuristic(state,searchSpace)+cost # cost is the heuristic value plus the cost to get in this state
 
 # Function to check if a succcesor should be searched on
 def succesorIsValid(succ, succDictionary,cost):
